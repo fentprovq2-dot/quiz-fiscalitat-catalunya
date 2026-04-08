@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz: Fiscalitat i Catalunya</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4ef; color: #1a1a18; min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem; }
+.container { background: #fff; border-radius: 16px; border: 0.5px solid #d3d1c7; padding: 2rem; max-width: 640px; width: 100%; }
+h1 { font-size: 20px; font-weight: 500; margin-bottom: 0.5rem; color: #1a1a18; }
+.subtitle { font-size: 14px; color: #5f5e5a; margin-bottom: 1.5rem; }
+.progress-bar-bg { height: 6px; background: #ece9e0; border-radius: 3px; margin-bottom: 1.5rem; }
+.progress-bar-fill { height: 6px; background: #378ADD; border-radius: 3px; transition: width 0.4s; }
+.option-btn { display: block; width: 100%; text-align: left; padding: 12px 16px; margin-bottom: 10px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: #fff; color: #1a1a18; font-size: 15px; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+.option-btn:hover:not(:disabled) { background: #f5f4ef; }
+.option-btn.correct { background: #eaf3de; border-color: #639922; color: #3b6d11; }
+.option-btn.wrong { background: #fcebeb; border-color: #e24b4a; color: #a32d2d; }
+.option-btn.reveal { background: #eaf3de; border-color: #639922; color: #3b6d11; opacity: 0.75; }
+.explanation { margin-top: 1rem; padding: 12px 16px; background: #f5f4ef; font-size: 14px; color: #5f5e5a; line-height: 1.6; border-left: 3px solid #378ADD; }
+.next-btn { margin-top: 1.25rem; padding: 10px 24px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: #f5f4ef; color: #1a1a18; font-size: 15px; cursor: pointer; font-family: inherit; }
+.next-btn:hover { background: #ece9e0; }
+.score-card { text-align: center; padding: 2rem 1rem; }
+.score-number { font-size: 56px; font-weight: 500; color: #1a1a18; }
+.score-sub { font-size: 16px; color: #5f5e5a; margin-bottom: 1.5rem; }
+.score-msg { font-size: 15px; color: #1a1a18; margin-bottom: 1.5rem; padding: 1rem; background: #f5f4ef; border-radius: 12px; }
+.restart-btn { padding: 10px 28px; border-radius: 8px; border: 0.5px solid #b4b2a9; background: #fff; color: #1a1a18; font-size: 15px; cursor: pointer; font-family: inherit; }
+.restart-btn:hover { background: #f5f4ef; }
+@media (prefers-color-scheme: dark) {
+  body { background: #1e1e1c; color: #e8e6df; }
+  .container { background: #2c2c2a; border-color: #444441; }
+  h1 { color: #e8e6df; }
+  .option-btn { background: #2c2c2a; border-color: #5f5e5a; color: #e8e6df; }
+  .option-btn:hover:not(:disabled) { background: #383836; }
+  .progress-bar-bg { background: #383836; }
+  .explanation { background: #383836; color: #b4b2a9; }
+  .next-btn, .restart-btn { background: #383836; border-color: #5f5e5a; color: #e8e6df; }
+  .score-msg { background: #383836; color: #e8e6df; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Quiz: Fiscalitat i Catalunya</h1>
+  <p class="subtitle">Deficit fiscal, IRPF, inversions i pressio fiscal</p>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog" style="width:0%"></div></div>
+  <div id="quiz-body"></div>
+</div>
+<script>
+const questions=[
+  {cat:"IRPF",catColor:"#185FA5",q:"Catalunya es la comunitat de regim comu on una renda de 30.000 EUR bruts anuals paga...",opts:["Menys IRPF que a qualsevol altra comunitat","Mes IRPF que a qualsevol altra comunitat","El mateix que a Madrid","Un tipus igual que a Andalusia"],correct:1,exp:"El 2023 un contribuent solter de 30.000 EUR pagava 5.041 EUR a Catalunya, la xifra mes alta del regim comu. A Madrid pagava 4.638 EUR, gairebe 400 EUR menys."},
+  {cat:"IRPF - deflacio",catColor:"#185FA5",q:"Si l'IRPF no es deflacta quan hi ha inflacio, el contribuent...",opts:["Paga el mateix en termes reals","Paga menys gracies als trams progressius","Paga mes perque la pujada nominal el fa saltar de tram","No es veu afectat si el sou no puja per sobre del IPC"],correct:2,exp:"La inflacio fa pujar els sous nominals, empenyent contribuents a trams marginals superiors tot i perdre poder adquisitiu real. El Banc d'Espanya calcula uns 11.000 M EUR addicionals recaptats entre 2019-2023 per no deflactar."},
+  {cat:"IRPF - deflacio",catColor:"#185FA5",q:"Quants anys dels darrers 20 ha deflactat l'Estat la tarifa de l'IRPF per corregir la inflacio?",opts:["Cap any","Dos anys (2008 i 2015)","Cinc anys","Cada any de manera automatica"],correct:1,exp:"Nomes el 2008 (govern Zapatero) i el 2015 (govern Rajoy) s'han aplicat ajustaments per inflacio a la tarifa. En tots dos casos va coincidir amb anys d'eleccions generals."},
+  {cat:"Deficit fiscal",catColor:"#0F6E56",q:"A quant va ascendir el deficit fiscal de Catalunya amb l'Estat el 2021?",opts:["Al voltant de 5.000 M EUR","Al voltant de 10.000 M EUR","Gairebe 22.000 M EUR","Mes de 40.000 M EUR"],correct:2,exp:"El Departament d'Economia va calcular 21.982 M EUR l'any 2021, maxim historic en valors absoluts, equivalent al ~10% del PIB catala i a la meitat del pressupost de la Generalitat."},
+  {cat:"Deficit fiscal",catColor:"#0F6E56",q:"De cada euro que Catalunya aporta als ingressos de l'Estat, quina part rep en despesa?",opts:["La mateixa part (un euro)","Uns 90 centims","Uns 70 centims","Menys de 75 centims"],correct:3,exp:"Catalunya aporta el ~19% dels ingressos estatals pero rep menys del 14% de la despesa. Excloent Seguretat Social (no discrecional), la xifra baixa fins al 9,2%. Suposa uns 70-75 centims de retorn per euro aportat."},
+  {cat:"Inversions de l'Estat",catColor:"#854F0B",q:"El 2023, quin percentatge de les inversions pressupostades va executar l'Estat a Catalunya?",opts:["El 90%","El 75%","El 58%","El 45%"],correct:3,exp:"L'Estat va executar nomes el 45% de les inversions previstes (1.028 M EUR dels 2.276 M EUR pressupostats). Va ser el territori amb el grau d'execucio mes baix. A Madrid l'execucio va ser del 165%."},
+  {cat:"Inversions de l'Estat",catColor:"#854F0B",q:"Deficit acumulat en infraestructures a Catalunya entre 2009 i 2023, segons Foment del Treball?",opts:["Uns 5.000 M EUR","Uns 15.000 M EUR","Uns 42.500 M EUR","Uns 80.000 M EUR"],correct:2,exp:"Foment del Treball calcula 42.500 M EUR de deficit acumulat. La referencia europea es el 2,2% del PIB en infraestructures; Catalunya sovint no arriba ni a la meitat d'aquesta cota."},
+  {cat:"Pressio fiscal",catColor:"#993C1D",q:"Quin efecte te el deficit fiscal sobre els serveis publics que reben els catalans?",opts:["Cap, la Generalitat compensa la diferencia","Permet financer infraestructures addicionals","Redueix els recursos disponibles per a sanitat, educacio i serveis socials","Beneficia les empreses catalanes"],correct:2,exp:"Els ~22.000 M EUR de deficit fiscal equivalen a la suma de les despeses de Salut, Educacio i Drets Socials junts. Son recursos que paguen els catalans pero que no reverteixen en serveis al territori."},
+  {cat:"Pressio fiscal",catColor:"#993C1D",q:"Quina recaptacio addicional estima l'estudi Balladares-Garcia-Miralles per no deflactar l'IRPF (2019-2023)?",opts:["Uns 1.000 M EUR","Uns 3.600 M EUR","Uns 9.700 M EUR","Uns 16.700 M EUR"],correct:3,exp:"L'estudi situa en 16.700 M EUR la recaptacio extra de l'Estat per no corregir trams ni beneficis fiscals per inflacio. D'altres estimacions (Funcas) parlen d'uns 9.700 M EUR."},
+  {cat:"Inversions de l'Estat",catColor:"#854F0B",q:"Quina inversio real per habitant va rebre Catalunya de l'Estat el 2023?",opts:["Primera comunitat, amb 320 EUR","Al voltant de la mitjana estatal (230 EUR)","Penultima per la cua, amb 130 EUR","Ultima, amb 80 EUR"],correct:2,exp:"Catalunya va rebre 130 EUR d'inversio real per habitant el 2023, la penultima xifra entre totes les CCAA, molt per sota de la mitjana estatal de 230 EUR per habitant."}
+];
+let current=0,score=0,answered=false;
+function catStyle(c){return"background:"+c+"22;color:"+c+";border:0.5px solid "+c+"55;";}
+function render(){
+  const body=document.getElementById('quiz-body');
+  document.getElementById('prog').style.width=(current/questions.length*100)+'%';
+  if(current>=questions.length){
+    const pct=Math.round(score/questions.length*100);
+    const msg=pct>=80?'Excel.lent! Tens un bon coneixement de la fiscalitat catalana.':pct>=50?'No esta malament! Hi ha aspectes que val la pena aprofundir.':'La fiscalitat es complexa. Repassa els temes i torna-ho a intentar!';
+    body.innerHTML='<div class="score-card"><div class="score-number">'+score+'/'+questions.length+'</div><div class="score-sub">'+pct+'% correctes</div><div class="score-msg">'+msg+'</div><button class="restart-btn" onclick="restart()">Tornar a jugar</button></div>';
+    return;
+  }
+  const q=questions[current];answered=false;
+  body.innerHTML='<div style="font-size:12px;color:#888780;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem">Pregunta '+(current+1)+' de '+questions.length+'</div>'
+    +'<span style="'+catStyle(q.catColor)+'font-size:11px;padding:3px 10px;border-radius:8px;font-weight:500;display:inline-block;margin-bottom:.75rem">'+q.cat+'</span>'
+    +'<div style="font-size:17px;font-weight:500;margin-bottom:1.25rem;line-height:1.5;color:inherit">'+q.q+'</div>'
+    +'<div id="opts">'+q.opts.map((o,i)=>'<button class="option-btn" onclick="answer('+i+')">'+o+'</button>').join('')+'</div>'
+    +'<div id="expl" style="display:none"></div><div id="nxt"></div>';
+}
+function answer(idx){
+  if(answered)return;answered=true;
+  const q=questions[current];
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  btns[idx].classList.add(idx===q.correct?'correct':'wrong');
+  if(idx!==q.correct)btns[q.correct].classList.add('reveal');
+  if(idx===q.correct)score++;
+  document.getElementById('expl').style.display='block';
+  document.getElementById('expl').innerHTML='<div class="explanation">'+q.exp+'</div>';
+  document.getElementById('nxt').innerHTML='<button class="next-btn" onclick="next()">'+(current+1<questions.length?'Seguent pregunta &rarr;':'Veure resultats &rarr;')+'</button>';
+}
+function next(){current++;render();}
+function restart(){current=0;score=0;render();}
+render();
+</script>
+</body>
+</html>
